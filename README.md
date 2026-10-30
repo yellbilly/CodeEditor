@@ -25,31 +25,6 @@ Editor di codice semplice ispirato a Notepad++ (Kotlin, nessuna dipendenza oltre
 `Ctrl+G` vai alla riga · `Ctrl+D` duplica riga · `Ctrl+L` elimina riga · `Ctrl+/` commenta ·
 `Ctrl+Z`/`Ctrl+Y` annulla/ripeti · `Tab`/`Shift+Tab` indenta/deindenta
 
-## Come ottenere l'APK
+## Licenza e Privacy
 
-1. Installa **Android Studio** (qualsiasi versione recente, JDK 17+ incluso).
-2. `File → Open` e scegli la cartella `CodeEditor`. Alla prima apertura scarica Gradle e l'SDK necessari.
-3. Per provarla: collega il telefono (debug USB attivo) e premi **Run ▶**.
-4. Per un APK da installare: `Build → Build Bundle(s) / APK(s) → Build APK(s)`.
-   Il file è in `app/build/outputs/apk/debug/app-debug.apk` (copialo sul telefono e aprilo; serve consentire
-   l'installazione da origini sconosciute).
-
-Da terminale, con SDK installato e `ANDROID_HOME` impostata: `gradle assembleDebug`
-(oppure `./gradlew assembleDebug` dopo aver generato il wrapper con `gradle wrapper`).
-
-## Struttura
-
-```
-app/src/main/java/it/fabio/codeeditor/
-  MainActivity.kt        schede, menu, file, trova/sostituisci, barra simboli
-  CodeEditText.kt        view dell'editor (numeri di riga, undo, indent, ricerca)
-  SyntaxHighlighter.kt   regole di colorazione + temi chiaro/scuro
-  UndoManager.kt         cronologia annulla/ripeti
-  FileIo.kt              lettura/scrittura con codifica e fine riga
-  SessionStore.kt        salvataggio automatico delle schede
-  Doc.kt                 modello di un documento aperto
-```
-
-## Pubblicazione
-
-Vedi [PUBBLICAZIONE.md](PUBBLICAZIONE.md) (GitHub da terminale, firma dell'APK). Licenza: [MIT](LICENSE). Privacy: [PRIVACY.md](PRIVACY.md). Font Courier Prime: [SIL OFL](FONT-LICENSE-CourierPrime.txt).
+Licenza: [MIT](LICENSE). Privacy: [PRIVACY.md](PRIVACY.md). Font Courier Prime: [SIL OFL](FONT-LICENSE-CourierPrime.txt).
