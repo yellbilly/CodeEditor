@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item android:id="@+id/action_new" android:title="@string/menu_new" app:showAsAction="never" />
+    <item android:id="@+id/action_open" android:title="@string/menu_open" app:showAsAction="never" />
+    <item android:id="@+id/action_save" android:title="@string/menu_save" app:showAsAction="ifRoom" />
+    <item android:id="@+id/action_save_as" android:title="@string/menu_save_as" app:showAsAction="never" />
+    <item android:id="@+id/action_close_tab" android:title="@string/menu_close_tab" app:showAsAction="never" />
+
+    <item android:id="@+id/action_undo" android:title="@string/menu_undo" app:showAsAction="ifRoom" />
+    <item android:id="@+id/action_redo" android:title="@string/menu_redo" app:showAsAction="ifRoom" />
+    <item android:id="@+id/action_find" android:title="@string/menu_find" app:showAsAction="ifRoom" />
+    <item android:id="@+id/action_goto" android:title="@string/menu_goto" app:showAsAction="never" />
+
+    <item android:id="@+id/action_duplicate_line" android:title="@string/menu_duplicate_line" app:showAsAction="never" />
+    <item android:id="@+id/action_delete_line" android:title="@string/menu_delete_line" app:showAsAction="never" />
+    <item android:id="@+id/action_comment" android:title="@string/menu_comment" app:showAsAction="never" />
+    <item android:id="@+id/action_upper" android:title="@string/menu_upper" app:showAsAction="never" />
+    <item android:id="@+id/action_lower" android:title="@string/menu_lower" app:showAsAction="never" />
+
+    <item android:id="@+id/action_language" android:title="@string/menu_language" app:showAsAction="never" />
+    <item android:id="@+id/action_wrap" android:title="@string/menu_wrap" android:checkable="true" app:showAsAction="never" />
+    <item android:id="@+id/action_line_numbers" android:title="@string/menu_line_numbers" android:checkable="true" android:checked="true" app:showAsAction="never" />
+    <item android:id="@+id/action_font_family" android:title="@string/menu_font" app:showAsAction="never" />
+    <item android:id="@+id/action_theme" android:title="@string/menu_theme" app:showAsAction="never" />
+    <item android:id="@+id/action_font_bigger" android:title="@string/menu_font_bigger" app:showAsAction="never" />
+    <item android:id="@+id/action_font_smaller" android:title="@string/menu_font_smaller" app:showAsAction="never" />
+    <item android:id="@+id/action_about" android:title="@string/menu_about" app:showAsAction="never" />
+</menu>

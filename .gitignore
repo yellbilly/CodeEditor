@@ -1,0 +1,14 @@
+*.iml
+.gradle/
+build/
+local.properties
+.idea/
+.DS_Store
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Firma dell'app: MAI su GitHub
+keystore.properties
+*.jks
+*.keystore
