@@ -50,6 +50,21 @@ app/src/main/java/it/fabio/codeeditor/
   Doc.kt                 modello di un documento aperto
 ```
 
+## Espressioni regolari (regex)
+
+Menu → **Trova / Sostituisci**, poi spunta la casella `.*` (regex) e, se serve, `Aa` (maiuscole/minuscole).
+Sintassi Java/Kotlin; `^` e `$` valgono per ogni riga. Nel campo "Sostituisci con": `$1`, `$2`… sono i gruppi,
+`$0` è tutta la corrispondenza, `\n` a capo, `\t` tabulazione, `\\` backslash, `\$` dollaro.
+
+| Cosa vuoi fare | Trova | Sostituisci con |
+|---|---|---|
+| Commentare tutte le righe | `^` | `// ` |
+| Togliere spazi a fine riga | `[ \t]+$` | *(vuoto)* |
+| Eliminare le righe vuote | `^\n` | *(vuoto)* |
+| Scambiare "Nome Cognome" | `^(\w+) (\w+)$` | `$2 $1` |
+| Virgole in nuove righe | `,` | `\n` |
+| Racchiudere i numeri tra `<>` | `\d+` | `<$0>` |
+
 ## Pubblicazione
 
-Vedi [PUBBLICAZIONE.md](PUBBLICAZIONE.md) (GitHub da terminale, firma dell'APK). Licenza: [MIT](LICENSE). Privacy: [PRIVACY.md](PRIVACY.md). Font Courier Prime: [SIL OFL](FONT-LICENSE-CourierPrime.txt).
+Manuale d'uso: [MANUALE.md](MANUALE.md) (anche nell'app, menu → Guida). Vedi [PUBBLICAZIONE.md](PUBBLICAZIONE.md) (GitHub da terminale, firma dell'APK). Licenza: [MIT](LICENSE). Privacy: [PRIVACY.md](PRIVACY.md). Font Courier Prime: [SIL OFL](FONT-LICENSE-CourierPrime.txt).

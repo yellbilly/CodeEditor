@@ -22,6 +22,7 @@
     <string name="menu_upper">MAIUSCOLO</string>
     <string name="menu_lower">minuscolo</string>
     <string name="menu_font">Tipo di carattere…</string>
+    <string name="menu_help">Guida</string>
     <string name="menu_about">Informazioni</string>
     <string name="font_monospace">Monospace (predefinito)</string>
     <string name="font_courier">Courier Prime (a larghezza fissa)</string>
@@ -47,6 +48,7 @@
     <string name="saved">Salvato</string>
     <string name="error_open">Impossibile aprire il file</string>
     <string name="error_save">Impossibile salvare il file</string>
+    <string name="error_replacement">Testo di sostituzione non valido (controlla i gruppi e i backslash)</string>
     <string name="error_regex">Espressione regolare non valida</string>
     <string name="status_format">Rg %1$d, Col %2$d  |  %3$d righe  |  %4$d car.  |  %5$s</string>
 </resources>
