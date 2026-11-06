@@ -165,6 +165,7 @@ class MainActivity : AppCompatActivity() {
                     b.editor.showLineNumbers = item.isChecked
                 }
                 R.id.action_font_family -> showFontDialog()
+                R.id.action_help -> showHelp()
                 R.id.action_about -> showAbout()
                 R.id.action_theme -> toggleTheme()
                 R.id.action_font_bigger -> changeFont(+1f)
@@ -504,6 +505,28 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
+    private fun showHelp() {
+        val manual = try {
+            resources.openRawResource(R.raw.manuale).bufferedReader(Charsets.UTF_8).use { it.readText() }
+        } catch (_: Exception) {
+            ""
+        }
+        val dp = resources.displayMetrics.density
+        val tv = TextView(this).apply {
+            text = manual
+            textSize = 14f
+            setTextIsSelectable(true)
+            val p = (20 * dp).toInt()
+            setPadding(p, p / 2, p, p / 2)
+        }
+        val scroll = android.widget.ScrollView(this).apply { addView(tv) }
+        AlertDialog.Builder(this)
+            .setTitle(R.string.menu_help)
+            .setView(scroll)
+            .setPositiveButton(R.string.ok, null)
+            .show()
+    }
+
     private fun showAbout() {
         val version = try {
             packageManager.getPackageInfo(packageName, 0).versionName ?: ""
@@ -564,15 +587,23 @@ class MainActivity : AppCompatActivity() {
 
         b.replaceOne.setOnClickListener {
             val r = findRegex() ?: return@setOnClickListener
-            val ok = b.editor.replaceCurrent(r, b.replaceInput.text.toString(), b.optRegex.isChecked)
-            if (!ok) Toast.makeText(this, R.string.not_found, Toast.LENGTH_SHORT).show()
+            try {
+                val ok = b.editor.replaceCurrent(r, b.replaceInput.text.toString(), b.optRegex.isChecked)
+                if (!ok) Toast.makeText(this, R.string.not_found, Toast.LENGTH_SHORT).show()
+            } catch (e: Exception) {
+                Toast.makeText(this, R.string.error_replacement, Toast.LENGTH_LONG).show()
+            }
             markMatches()
         }
         b.replaceAll.setOnClickListener {
             val r = findRegex() ?: return@setOnClickListener
-            val n = b.editor.replaceAll(r, b.replaceInput.text.toString(), b.optRegex.isChecked)
-            val msg = if (n == 0) getString(R.string.not_found) else getString(R.string.replaced_n, n)
-            Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+            try {
+                val n = b.editor.replaceAll(r, b.replaceInput.text.toString(), b.optRegex.isChecked)
+                val msg = if (n == 0) getString(R.string.not_found) else getString(R.string.replaced_n, n)
+                Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+            } catch (e: Exception) {
+                Toast.makeText(this, R.string.error_replacement, Toast.LENGTH_LONG).show()
+            }
             markMatches()
         }
     }

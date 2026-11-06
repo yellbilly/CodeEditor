@@ -16,6 +16,7 @@ import android.util.TypedValue
 import android.view.KeyEvent
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.core.content.res.ResourcesCompat
+import java.util.regex.Matcher
 
 class MatchSpan(color: Int) : BackgroundColorSpan(color)
 
@@ -403,7 +404,9 @@ class CodeEditText @JvmOverloads constructor(
     fun buildRegex(query: String, caseSensitive: Boolean, useRegex: Boolean): Regex? {
         if (query.isEmpty()) return null
         return try {
-            val opts = if (caseSensitive) emptySet() else setOf(RegexOption.IGNORE_CASE)
+            // MULTILINE: ^ e $ valgono per ogni riga, come in Notepad++
+            val opts = mutableSetOf(RegexOption.MULTILINE)
+            if (!caseSensitive) opts.add(RegexOption.IGNORE_CASE)
             Regex(if (useRegex) query else Regex.escape(query), opts)
         } catch (e: Exception) {
             null
@@ -430,37 +433,77 @@ class CodeEditText @JvmOverloads constructor(
     /** Seleziona la prossima/precedente occorrenza; ritorna false se non ce ne sono. */
     fun find(regex: Regex, forward: Boolean): Boolean {
         val src = text?.toString() ?: return false
+        val len = src.length
         val found: MatchResult?
         if (forward) {
-            val from = selectionEnd.coerceIn(0, src.length)
-            found = regex.find(src, from) ?: regex.find(src, 0)
+            val from = selectionEnd.coerceIn(0, len)
+            var m = regex.find(src, from)
+            // corrispondenza vuota (es. ^ o $) proprio dove si trova il cursore: passa alla successiva
+            if (m != null && m.value.isEmpty() && selectionStart == selectionEnd && m.range.first == from) {
+                m = if (from < len) regex.find(src, from + 1) else null
+            }
+            found = m ?: regex.find(src, 0)
         } else {
             val before = selectionStart
             var prev: MatchResult? = null
             var lastAny: MatchResult? = null
             for (r in regex.findAll(src)) {
-                if (r.value.isEmpty()) continue
                 lastAny = r
                 if (r.range.first < before) prev = r
             }
             found = prev ?: lastAny
         }
         val m = found ?: return false
-        if (m.value.isEmpty()) return false
         setSelection(m.range.first, m.range.last + 1)
         requestFocus()
         return true
     }
 
+    /**
+     * Converte il testo di sostituzione scritto dall'utente nel formato di Java:
+     * in modalità regex $1, $2, $0 (tutto) e ${nome} indicano i gruppi, \n = a capo, \t = tab,
+     * \\ = backslash, \$ = dollaro. Fuori dalla modalità regex il testo è letterale.
+     */
+    private fun toJavaReplacement(r: String, useRegex: Boolean): String {
+        if (!useRegex) return Matcher.quoteReplacement(r)
+        val sb = StringBuilder()
+        var i = 0
+        while (i < r.length) {
+            val c = r[i]
+            if (c == '\\') {
+                if (i + 1 >= r.length) {
+                    sb.append("\\\\")
+                    i++
+                    continue
+                }
+                when (val n = r[i + 1]) {
+                    'n' -> sb.append('\n')
+                    't' -> sb.append('\t')
+                    'r' -> sb.append('\r')
+                    '\\' -> sb.append("\\\\")
+                    '$' -> sb.append("\\$")
+                    else -> sb.append("\\\\").append(n)
+                }
+                i += 2
+            } else {
+                sb.append(c)
+                i++
+            }
+        }
+        return sb.toString()
+    }
+
+    /** Sostituisce l'occorrenza selezionata (se corrisponde) e passa alla successiva. */
     fun replaceCurrent(regex: Regex, replacement: String, useRegex: Boolean): Boolean {
-        val t = text ?: return false
+        val src = text?.toString() ?: return false
         val s = selectionStart
         val e = selectionEnd
-        if (s != e) {
-            val selected = t.substring(s, e)
-            if (regex.matchEntire(selected) != null) {
-                val rep = if (useRegex) regex.replace(selected, replacement)
-                else replacement
+        if (s in 0..src.length && e >= s) {
+            val m = regex.toPattern().matcher(src)
+            if (m.find(s) && m.start() == s && m.end() == e) {
+                val sb = StringBuffer()
+                m.appendReplacement(sb, toJavaReplacement(replacement, useRegex))
+                val rep = sb.substring(s) // appendReplacement aggiunge prima il testo che precede
                 replaceRange(s, e, rep)
                 setSelection(s + rep.length)
             }
@@ -468,18 +511,32 @@ class CodeEditText @JvmOverloads constructor(
         return find(regex, true)
     }
 
+    /** Sostituisce tutte le occorrenze con una sola modifica annullabile; ritorna quante. */
     fun replaceAll(regex: Regex, replacement: String, useRegex: Boolean): Int {
         val src = text?.toString() ?: return 0
-        val matches = regex.findAll(src).filter { it.value.isNotEmpty() }.toList()
-        if (matches.isEmpty()) return 0
-        val from = matches.first().range.first
-        val to = matches.last().range.last + 1
-        val chunk = src.substring(from, to)
-        val out = if (useRegex) regex.replace(chunk, replacement)
-        else regex.replace(chunk, Regex.escapeReplacement(replacement))
-        replaceRange(from, to, out)
-        setSelection((from + out.length).coerceAtMost(text!!.length))
-        return matches.size
+        val m = regex.toPattern().matcher(src)
+        val rep = toJavaReplacement(replacement, useRegex)
+        val sb = StringBuffer()
+        var count = 0
+        while (m.find()) {
+            count++
+            m.appendReplacement(sb, rep)
+        }
+        if (count == 0) return 0
+        m.appendTail(sb)
+        val out = sb.toString()
+        if (out == src) return count
+
+        // sostituisce solo la parte che cambia (mantiene il cursore e la cronologia leggeri)
+        val maxCommon = minOf(src.length, out.length)
+        var p = 0
+        while (p < maxCommon && src[p] == out[p]) p++
+        var q = 0
+        while (q < maxCommon - p && src[src.length - 1 - q] == out[out.length - 1 - q]) q++
+        val middle = out.substring(p, out.length - q)
+        replaceRange(p, src.length - q, middle)
+        setSelection((p + middle.length).coerceAtMost(text?.length ?: 0))
+        return count
     }
 
     // --------------------------------------------------------------- eventi
